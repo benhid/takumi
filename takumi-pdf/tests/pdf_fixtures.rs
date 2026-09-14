@@ -1786,6 +1786,24 @@ fn inflated_text(pdf: &[u8]) -> String {
   text
 }
 
+/// Every `/DW` value in the document, as it was written.
+fn default_widths(pdf: &[u8]) -> Vec<String> {
+  let mut widths = Vec::new();
+  let mut rest = pdf;
+
+  while let Some(at) = find(rest, b"/DW ") {
+    rest = &rest[at + b"/DW ".len()..];
+    let end = rest
+      .iter()
+      .position(|byte| !byte.is_ascii_digit() && *byte != b'.' && *byte != b'-')
+      .unwrap_or(rest.len());
+    widths.push(String::from_utf8_lossy(&rest[..end]).into_owned());
+    rest = &rest[end..];
+  }
+
+  widths
+}
+
 fn find(haystack: &[u8], needle: &[u8]) -> Option<usize> {
   haystack
     .windows(needle.len())
@@ -3975,6 +3993,56 @@ fn font_weights() {
   assert!(
     stroke_alphas(&haystack).contains(&0.0),
     "faux bold outlines transparent text opaquely"
+  );
+}
+
+#[test]
+fn cid_default_width_is_an_integer() {
+  let mut fonts = Fonts::default();
+  // A face whose units per em is not 1000 converts to fractional PDF widths, and
+  // `/DW` is where the width most glyphs share is written once.
+  let data = fs::read(
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+      .join("../assets/fonts/sil/scheherazade-new-v17-arabic-regular.woff2"),
+  )
+  .expect("read arabic font");
+  let arabic = fonts
+    .register(FontResource::new(data))
+    .expect("load arabic font")
+    .first()
+    .expect("registered family")
+    .name
+    .clone();
+
+  let doc = format!(
+    r#"<main style="display:flex;flex-direction:column;font-size:16px;color:#141414;">
+      <p lang="ar" style="font-family:{arabic};">نص عربي عادي بحروف متكررة</p>
+    </main>"#
+  );
+  let pdf = render_pinned(
+    PdfOptions::builder()
+      .node(from_html(&doc, FromHtmlOptions::default()).expect("parse arabic doc"))
+      .page(PageOptions::A4)
+      .lang(Some(takumi_core::style::Lang::parse("ar").expect("lang")))
+      .fonts(&fonts)
+      .build(),
+  );
+
+  let widths = default_widths(&pdf);
+
+  assert!(!widths.is_empty(), "no /DW entry in the document");
+
+  // PDF 32000-1 9.7.4.3 types `/DW` as an integer, and a reader that enforces
+  // the type falls back to the spec default of 1000 instead.
+  for width in &widths {
+    assert!(!width.contains('.'), "/DW written as a real: {width}");
+  }
+
+  // Rounding `/DW` leaves the glyphs that shared the fractional width unequal to
+  // it, so `/W` has to carry them rather than lose their advance.
+  assert!(
+    find(&pdf, b"/W[").is_some(),
+    "no /W array beside the rounded /DW"
   );
 }
 
