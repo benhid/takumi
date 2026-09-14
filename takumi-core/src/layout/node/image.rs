@@ -50,6 +50,7 @@ pub(crate) fn measure_image_node(
   available_space: Size<AvailableSpace>,
   known_dimensions: Size<Option<f32>>,
   style: &taffy::Style,
+  is_inline_level: bool,
 ) -> Size<f32> {
   let Ok(image_source) = image.src.resolve(context) else {
     return Size::ZERO;
@@ -135,7 +136,10 @@ pub(crate) fn measure_image_node(
     height: style_known_dimensions.height.or(known_dimensions.height),
   };
 
-  let known_dimensions = if style.size.width.is_auto()
+  // An auto-sized image fills the width it is offered, but only as a block-level box: CSS
+  // 2.1 10.3.2 gives an inline-level replaced element its intrinsic width instead.
+  let known_dimensions = if !is_inline_level
+    && style.size.width.is_auto()
     && style.size.height.is_auto()
     && known_dimensions.width.is_none()
     && known_dimensions.height.is_none()
@@ -369,6 +373,7 @@ mod tests {
       },
       Size::NONE,
       &style,
+      false,
     );
 
     assert_eq!(

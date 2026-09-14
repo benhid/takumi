@@ -1482,6 +1482,36 @@ fn test_measure_run_ascent_locates_the_shared_baseline() {
 }
 
 #[test]
+fn test_measure_auto_sized_inline_image_keeps_its_intrinsic_width() {
+  let svg = r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150"><rect width="200" height="150" fill="#000"/></svg>"##;
+
+  let node: Node = Node::container([
+    Node::image(svg)
+      .with_tag_name("svg")
+      .with_style(Style::default().with(StyleDeclaration::display(Display::Inline))),
+    Node::text("Caption".to_string())
+      .with_style(Style::default().with(StyleDeclaration::display(Display::Block))),
+  ])
+  .with_style(
+    Style::default()
+      .with(StyleDeclaration::display(Display::Block))
+      .with(StyleDeclaration::width(Px(1200.0))),
+  );
+
+  let measured = measure(node, create_measure_viewport());
+  let line = &measured.children[0];
+
+  // CSS 2.1 10.3.2: an inline-level replaced element with no width or height
+  // takes its intrinsic width, so it does not inflate the line box around it.
+  assert_close(line.children[0].width, 200.0);
+  assert_close(line.children[0].height, 150.0);
+  assert!(
+    line.height < 200.0,
+    "the line box grew to the image's offered width: {line:#?}"
+  );
+}
+
+#[test]
 fn test_measure_text_node_centers_glyphs_with_explicit_line_height() {
   let node = Node::text("Line height 40px".to_string()).with_style(
     Style::default()

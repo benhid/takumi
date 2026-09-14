@@ -622,12 +622,20 @@ impl Node {
     available_space: Size<AvailableSpace>,
     known_dimensions: Size<Option<f32>>,
     style: &taffy::Style,
+    is_inline_level: bool,
   ) -> Size<f32> {
     match &self.kind {
       NodeKind::Container { .. } => Size::ZERO,
-      NodeKind::Image(image) => {
-        measure_image_node(image, context, available_space, known_dimensions, style)
-      }
+      // The taffy style no longer carries the box type this node took in its parent's
+      // formatting context, and an inline replaced element is sized differently.
+      NodeKind::Image(image) => measure_image_node(
+        image,
+        context,
+        available_space,
+        known_dimensions,
+        style,
+        is_inline_level,
+      ),
       NodeKind::Text(text) => measure_text_node(text, context, available_space, known_dimensions),
     }
   }

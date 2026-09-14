@@ -1911,7 +1911,13 @@ impl RenderNode {
       .as_deref()
       .cloned()
       .unwrap_or_else(|| self.context.style.to_taffy_style(&self.context.sizing));
-    let measured_size = node.measure(&self.context, available_space, Size::NONE, &layout_style);
+    let measured_size = node.measure(
+      &self.context,
+      available_space,
+      Size::NONE,
+      &layout_style,
+      true,
+    );
     let size = self.inline_replaced_content_size(measured_size, &layout_style);
 
     AtomicInlineMetrics {
@@ -2058,7 +2064,13 @@ impl RenderNode {
       return Size::ZERO;
     };
 
-    node.measure(&self.context, available_space, known_dimensions, style)
+    node.measure(
+      &self.context,
+      available_space,
+      known_dimensions,
+      style,
+      false,
+    )
   }
 }
 
