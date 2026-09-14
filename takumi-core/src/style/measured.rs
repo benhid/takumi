@@ -115,7 +115,6 @@ impl MeasuredStyle {
     .map(|radius| radius.x.to_px(sizing, size.0));
     let has_border = border_widths.iter().any(|width| *width > 0.0);
 
-
     Self {
       color: style.color.resolve(current_color).to_css_string(),
       font_family: style.font_family.to_css_string(),

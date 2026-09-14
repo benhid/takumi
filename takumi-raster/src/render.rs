@@ -353,7 +353,14 @@ fn collect_measure_result(
 
           measured_by_node_id.insert(
             usize::from(node_id),
-            create_measured_node(layout, local_transform, children, runs, style, inline_backgrounds),
+            create_measured_node(
+              layout,
+              local_transform,
+              children,
+              runs,
+              style,
+              inline_backgrounds,
+            ),
           );
           continue;
         }
@@ -400,7 +407,14 @@ fn collect_measure_result(
         if current.children.is_none() {
           measured_by_node_id.insert(
             usize::from(node_id),
-            create_measured_node(layout, local_transform, children, runs, style, inline_backgrounds),
+            create_measured_node(
+              layout,
+              local_transform,
+              children,
+              runs,
+              style,
+              inline_backgrounds,
+            ),
           );
           continue;
         }
@@ -409,7 +423,14 @@ fn collect_measure_result(
         if layout_children.is_empty() {
           measured_by_node_id.insert(
             usize::from(node_id),
-            create_measured_node(layout, local_transform, children, runs, style, inline_backgrounds),
+            create_measured_node(
+              layout,
+              local_transform,
+              children,
+              runs,
+              style,
+              inline_backgrounds,
+            ),
           );
           continue;
         }

@@ -100,7 +100,10 @@ fn a_floated_box_reports_the_style_it_paints_with() {
     .find_map(|child| child.style.as_ref())
     .expect("the floated box's style");
 
-  assert_eq!(floated.background_color.as_deref(), Some("rgb(194, 65, 12)"));
+  assert_eq!(
+    floated.background_color.as_deref(),
+    Some("rgb(194, 65, 12)")
+  );
 }
 
 #[test]
@@ -302,4 +305,3 @@ fn style_lengths_follow_the_device_pixel_ratio() {
   assert_eq!(style.line_height, Some(60.0));
   assert_eq!(style.border_widths.expect("border widths"), [6.0; 4]);
 }
-
