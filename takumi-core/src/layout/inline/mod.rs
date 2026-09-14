@@ -280,6 +280,7 @@ impl BuiltInlineLayout<'_> {
             MeasuredTextRunStyle::from_font_style(
               font_style,
               face_family_name(fonts, glyph_run.run().font()),
+              glyph_run.style().brush.opacity,
             )
           });
 
