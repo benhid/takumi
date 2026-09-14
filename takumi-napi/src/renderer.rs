@@ -158,6 +158,8 @@ pub struct MeasuredTextRun {
   pub width: f64,
   /// The height of the run.
   pub height: f64,
+  /// Distance from the run's top edge to its baseline; `y + ascent` is the baseline.
+  pub ascent: f64,
   /// The resolved style the run paints with, set by `includeStyles`.
   pub style: Option<MeasuredTextRunStyle>,
 }
@@ -170,6 +172,7 @@ impl From<takumi_raster::MeasuredTextRun> for MeasuredTextRun {
       y: run.y as f64,
       width: run.width as f64,
       height: run.height as f64,
+      ascent: run.ascent as f64,
       style: run.style.map(Into::into),
     }
   }

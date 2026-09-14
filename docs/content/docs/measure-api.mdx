@@ -38,8 +38,12 @@ const { width, height } = await renderer.measure(node, { css }); // [!code highl
 | `height`    | `number`                                           | Laid-out height.                                              |
 | `transform` | `[number, number, number, number, number, number]` | Transformation matrix.                                        |
 | `children`  | `MeasuredNode[]`                                   | Measured child nodes.                                         |
-| `runs`      | `MeasuredTextRun[]`                                | Text runs in the node, each with `x`, `y`, `width`, `height`. |
+| `runs`      | `MeasuredTextRun[]`                                | Text runs in the node, each with `x`, `y`, `width`, `height`, `ascent`. |
 | `style`     | `MeasuredStyle \| undefined`                       | Resolved paint properties, present only with `includeStyles`. |
+
+A run's `height` is its ascent plus its descent, and `ascent` is the distance from its top edge
+down to its baseline: `y + ascent` is where the baseline sits. Runs that share a line agree on
+that sum whatever their font sizes, which is what another layout engine needs to place them.
 
 ## Resolved styles
 

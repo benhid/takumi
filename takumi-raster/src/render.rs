@@ -113,6 +113,8 @@ pub struct MeasuredTextRun {
   pub width: f32,
   /// The height of the run.
   pub height: f32,
+  /// Distance from the run's top edge to its baseline; `y + ascent` is the baseline.
+  pub ascent: f32,
   /// The resolved style the run paints with, set by `include_styles`.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub style: Option<MeasuredTextRunStyle>,
@@ -277,6 +279,7 @@ fn collect_measure_result(
             y: run.y,
             width: run.width,
             height: run.height,
+            ascent: run.ascent,
             style: run.style,
           }));
           children.extend(measured_boxes.into_iter().map(|inline_box| {
@@ -333,6 +336,7 @@ fn collect_measure_result(
             y: run.y,
             width: run.width,
             height: run.height,
+            ascent: run.ascent,
             style: run.style,
           }));
         }
