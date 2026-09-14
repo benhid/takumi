@@ -113,6 +113,7 @@ fn test_measure_simple_container() {
       children: Vec::new(),
       runs: Vec::new(),
       style: None,
+      inline_backgrounds: vec![],
     }
   );
 }
@@ -157,9 +158,11 @@ fn test_measure_text_node() {
           style: None,
         }],
         style: None,
+        inline_backgrounds: vec![],
       }],
       runs: Vec::new(),
       style: None,
+      inline_backgrounds: vec![],
     }
   )
 }
