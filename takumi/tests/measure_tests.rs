@@ -63,6 +63,7 @@ fn assert_text_runs_same(actual: &[MeasuredTextRun], expected: &[MeasuredTextRun
     assert_within(actual.y, expected.y, 0.05);
     assert_within(actual.width, expected.width, 0.05);
     assert_within(actual.height, expected.height, 0.05);
+    assert_within(actual.ascent, expected.ascent, 0.05);
   }
 }
 
@@ -154,6 +155,7 @@ fn test_measure_text_node() {
           width: 105.46001,
           height: 26.0,
           style: None,
+          ascent: 20.1,
         }],
         style: None,
         inline_backgrounds: vec![],
@@ -1497,6 +1499,33 @@ fn test_measure_auto_sized_replaced_element_without_a_natural_size_fills_its_con
     assert_close(image.width, 600.0);
     assert_close(image.height, 450.0);
   }
+}
+
+#[test]
+fn test_measure_run_ascent_locates_the_shared_baseline() {
+  let node: Node = Node::container([
+    Node::text("big".to_string()).with_style(
+      Style::default()
+        .with(StyleDeclaration::display(Display::Inline))
+        .with(StyleDeclaration::font_size(Px(48.0).into())),
+    ),
+    Node::text("small".to_string()).with_style(
+      Style::default()
+        .with(StyleDeclaration::display(Display::Inline))
+        .with(StyleDeclaration::font_size(Px(16.0).into())),
+    ),
+  ])
+  .with_style(Style::default().with(StyleDeclaration::display(Display::Block)));
+
+  let measured = measure(node, create_measure_viewport());
+  let runs = measured_text_runs(&measured);
+
+  let [big, small] = runs else {
+    panic!("expected two runs, got {runs:#?}");
+  };
+
+  assert!(big.ascent > small.ascent);
+  assert_close(big.y + big.ascent, small.y + small.ascent);
 }
 
 #[test]

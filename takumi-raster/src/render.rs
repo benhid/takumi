@@ -116,6 +116,8 @@ pub struct MeasuredTextRun {
   /// The resolved style the run paints with, set by `include_styles`.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub style: Option<MeasuredTextRunStyle>,
+  /// Distance from the run's top edge to its baseline; `y + ascent` is the baseline.
+  pub ascent: f32,
 }
 
 /// The result of a layout measurement.
@@ -327,6 +329,7 @@ fn collect_measure_result(
             width: run.width,
             height: run.height,
             style: run.style,
+            ascent: run.ascent,
           }));
           // Inline layout places boxes against the content box, while every measured node's
           // transform is absolute.
@@ -350,7 +353,14 @@ fn collect_measure_result(
 
           measured_by_node_id.insert(
             usize::from(node_id),
-            create_measured_node(layout, local_transform, children, runs, style, inline_backgrounds),
+            create_measured_node(
+              layout,
+              local_transform,
+              children,
+              runs,
+              style,
+              inline_backgrounds,
+            ),
           );
           continue;
         }
@@ -390,13 +400,21 @@ fn collect_measure_result(
             width: run.width,
             height: run.height,
             style: run.style,
+            ascent: run.ascent,
           }));
         }
 
         if current.children.is_none() {
           measured_by_node_id.insert(
             usize::from(node_id),
-            create_measured_node(layout, local_transform, children, runs, style, inline_backgrounds),
+            create_measured_node(
+              layout,
+              local_transform,
+              children,
+              runs,
+              style,
+              inline_backgrounds,
+            ),
           );
           continue;
         }
@@ -405,7 +423,14 @@ fn collect_measure_result(
         if layout_children.is_empty() {
           measured_by_node_id.insert(
             usize::from(node_id),
-            create_measured_node(layout, local_transform, children, runs, style, inline_backgrounds),
+            create_measured_node(
+              layout,
+              local_transform,
+              children,
+              runs,
+              style,
+              inline_backgrounds,
+            ),
           );
           continue;
         }
